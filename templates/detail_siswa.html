@@ -4,7 +4,6 @@
 {% block topbar_actions %}
   <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali</a>
   <a href="{{ url_for('main.edit_siswa', id=siswa.id) }}" class="btn btn-outline"><i class="fas fa-pen"></i> Edit</a>
-  <a href="{{ url_for('main.cetak_rapor', id=siswa.id) }}" class="btn btn-primary" target="_blank"><i class="fas fa-print"></i> Cetak Rapor</a>
 {% endblock %}
 
 {% block content %}

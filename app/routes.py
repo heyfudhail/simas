@@ -393,23 +393,6 @@ def simpan_nilai(siswa_id):
     return redirect(url_for("main.detail_siswa", id=siswa_id))
 
 
-# ─── CETAK RAPOR ───
-@main.route("/rapor/<int:id>")
-def cetak_rapor(id):
-    conn = get_db()
-    siswa = conn.execute("SELECT * FROM siswa WHERE id=?", (id,)).fetchone()
-    nilai = conn.execute(
-        "SELECT * FROM nilai WHERE siswa_id=? AND semester=? ORDER BY mata_pelajaran",
-        (id, "Ganjil 2025/2026"),
-    ).fetchall()
-    rata_rata = conn.execute(
-        "SELECT ROUND(AVG(nilai_akhir),1) as rata FROM nilai WHERE siswa_id=? AND semester=?",
-        (id, "Ganjil 2025/2026"),
-    ).fetchone()
-    conn.close()
-    return render_template("rapor.html", siswa=siswa, nilai=nilai, rata_rata=rata_rata)
-
-
 # ─── HELPER: Handle upload foto ───
 def _handle_upload(file, default):
     if file and file.filename and allowed_file(file.filename):
