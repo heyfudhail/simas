@@ -414,5 +414,9 @@ def cetak_rapor(id):
 def _handle_upload(file, default):
     if file and file.filename and allowed_file(file.filename):
         ext = file.filename.rsplit(".", 1)[1].lower()
-        return f"{uuid.uuid4().hex}.{ext}"
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        file.save(filepath)
+        return filename
     return default
