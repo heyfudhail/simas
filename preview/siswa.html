@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Siswa - SIMAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">S</div>
+      <div>
+        <div class="brand-name">SIMAS</div>
+        <div class="brand-sub">Sistem Informasi Manajemen Siswa</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Menu Utama</div>
+      <a href="dashboard.html" class="nav-item">
+        <span class="nav-icon"><i class="fas fa-th-large"></i></span> Dashboard
+      </a>
+      <a href="siswa.html" class="nav-item active">
+        <span class="nav-icon"><i class="fas fa-users"></i></span> Data Siswa
+      </a>
+      <a href="form_siswa.html" class="nav-item">
+        <span class="nav-icon"><i class="fas fa-user-plus"></i></span> Tambah Siswa
+      </a>
+      <a href="detail_siswa.html" class="nav-item">
+        <span class="nav-icon"><i class="fas fa-id-card"></i></span> Detail Siswa
+      </a>
+      <a href="rapor.html" class="nav-item">
+        <span class="nav-icon"><i class="fas fa-print"></i></span> Cetak Rapor
+      </a>
+    </nav>
+    <div class="sidebar-footer"><strong>SIMAS &copy; 2026</strong><br><small>Made by Fudhail.</small></div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">Data Siswa</div>
+      <div class="topbar-actions">
+        <a href="#" class="btn btn-outline"><i class="fas fa-file-csv"></i> Export CSV</a>
+        <a href="form_siswa.html" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Siswa</a>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card">
+        <form class="toolbar">
+          <input class="input" type="text" placeholder="Cari nama / NISN...">
+          <select class="input">
+            <option value="">Semua Kelas</option>
+            <option>X</option>
+            <option>XI-IPA</option>
+            <option>XI-IPS</option>
+            <option>XII-IPA</option>
+            <option>XII-IPS</option>
+          </select>
+          <button class="btn btn-primary" type="button"><i class="fas fa-search"></i> Cari</button>
+        </form>
+
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-search"></i></div>
+          <p>Belum ada data siswa</p>
+          <a href="form_siswa.html" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Siswa</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

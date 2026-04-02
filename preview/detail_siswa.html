@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Siswa - SIMAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">S</div>
+      <div>
+        <div class="brand-name">SIMAS</div>
+        <div class="brand-sub">Sistem Informasi Manajemen Siswa</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Menu Utama</div>
+      <a href="dashboard.html" class="nav-item">
+        <span class="nav-icon"><i class="fas fa-th-large"></i></span> Dashboard
+      </a>
+      <a href="siswa.html" class="nav-item">
+        <span class="nav-icon"><i class="fas fa-users"></i></span> Data Siswa
+      </a>
+      <a href="form_siswa.html" class="nav-item">
+        <span class="nav-icon"><i class="fas fa-user-plus"></i></span> Tambah Siswa
+      </a>
+      <a href="detail_siswa.html" class="nav-item active">
+        <span class="nav-icon"><i class="fas fa-id-card"></i></span> Detail Siswa
+      </a>
+      <a href="rapor.html" class="nav-item">
+        <span class="nav-icon"><i class="fas fa-print"></i></span> Cetak Rapor
+      </a>
+    </nav>
+    <div class="sidebar-footer"><strong>SIMAS &copy; 2026</strong><br><small>Made by Fudhail.</small></div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">Detail Siswa</div>
+      <div class="topbar-actions">
+        <a href="siswa.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali</a>
+        <a href="#" class="btn btn-outline"><i class="fas fa-pen"></i> Edit</a>
+        <a href="rapor.html" class="btn btn-primary" target="_blank"><i class="fas fa-print"></i> Cetak Rapor</a>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-detail">
+        <div class="card profil-card">
+          <div class="profil-foto">
+            <div class="avatar xl">L</div>
+          </div>
+          <div class="profil-nama">Lorem Ipsum</div>
+          <div class="profil-sub">0012345678</div>
+          <span class="badge badge-blue" style="margin-top:8px">X</span>
+          <div class="profil-info">
+            <div class="info-row"><span><i class="fas fa-venus-mars"></i> Jenis Kelamin</span><strong>Laki-laki</strong></div>
+            <div class="info-row"><span><i class="fas fa-map-marker-alt"></i> Tempat Lahir</span><strong>Dolor Sit</strong></div>
+            <div class="info-row"><span><i class="fas fa-calendar"></i> Tanggal Lahir</span><strong>2008-01-15</strong></div>
+            <div class="info-row"><span><i class="fas fa-phone"></i> No. Telepon</span><strong>081200000001</strong></div>
+            <div class="info-row"><span><i class="fas fa-home"></i> Alamat</span><strong>Jl. Consectetur No. 1</strong></div>
+          </div>
+          <div class="rata-card">
+            <div class="rata-label">Rata-rata Nilai</div>
+            <div class="rata-val green">85.2</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+            <span><i class="fas fa-clipboard-list"></i> Nilai Rapor</span>
+            <span class="badge badge-green">Ganjil 2025/2026</span>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Mata Pelajaran</th>
+                  <th>Nilai Harian (40%)</th>
+                  <th>UTS (30%)</th>
+                  <th>UAS (30%)</th>
+                  <th>Nilai Akhir</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Matematika</strong></td>
+                  <td><input class="input input-sm" type="number" value="82.5" placeholder="0"></td>
+                  <td><input class="input input-sm" type="number" value="80.0" placeholder="0"></td>
+                  <td><input class="input input-sm" type="number" value="85.0" placeholder="0"></td>
+                  <td><span class="na-display green">82.5</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Bahasa Indonesia</strong></td>
+                  <td><input class="input input-sm" type="number" value="88.0" placeholder="0"></td>
+                  <td><input class="input input-sm" type="number" value="85.0" placeholder="0"></td>
+                  <td><input class="input input-sm" type="number" value="90.0" placeholder="0"></td>
+                  <td><span class="na-display green">87.7</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Bahasa Inggris</strong></td>
+                  <td><input class="input input-sm" type="number" value="78.0" placeholder="0"></td>
+                  <td><input class="input input-sm" type="number" value="82.0" placeholder="0"></td>
+                  <td><input class="input input-sm" type="number" value="80.0" placeholder="0"></td>
+                  <td><span class="na-display green">79.6</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="button"><i class="fas fa-save"></i> Simpan Nilai Rapor</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

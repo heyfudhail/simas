@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - SIMAS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+  <div class="stat-card accent-green">
+    <div class="stat-label"><i class="fas fa-user-graduate"></i> Total Siswa</div>
+    <div class="stat-value">{{ total }}</div>
+    <div class="stat-desc">Terdaftar di sistem</div>
+  </div>
+  <div class="stat-card accent-blue">
+    <div class="stat-label"><i class="fas fa-mars"></i> Laki-laki</div>
+    <div class="stat-value">{{ laki }}</div>
+    <div class="stat-desc">Siswa putra</div>
+  </div>
+  <div class="stat-card accent-pink">
+    <div class="stat-label"><i class="fas fa-venus"></i> Perempuan</div>
+    <div class="stat-value">{{ perempuan }}</div>
+    <div class="stat-desc">Siswa putri</div>
+  </div>
+  <div class="stat-card accent-purple">
+    <div class="stat-label"><i class="fas fa-chalkboard"></i> Jumlah Kelas</div>
+    <div class="stat-value">{{ kelas_data|length }}</div>
+    <div class="stat-desc">Kelas aktif</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-chart-bar"></i> Sebaran per Kelas</div>
+    <table class="table">
+      <thead><tr><th>Kelas</th><th>Jumlah</th><th>Rata-rata Nilai</th></tr></thead>
+      <tbody>
+        {% for k in kelas_data %}
+        <tr>
+          <td><span class="badge badge-blue">{{ k.kelas }}</span></td>
+          <td>{{ k.jml }} siswa</td>
+          <td>
+            {% for a in avg_nilai if a.kelas == k.kelas %}
+              <span class="badge {% if a.rata >= 80 %}badge-green{% elif a.rata >= 70 %}badge-yellow{% else %}badge-red{% endif %}">
+                {{ a.rata }}
+              </span>
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="chart-container">
+      <canvas id="kelasChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><i class="fas fa-clock"></i> Siswa Terbaru</div>
+    <div class="siswa-list">
+      {% for s in siswa_terbaru %}
+      <a href="{{ url_for('main.detail_siswa', id=s.id) }}" class="siswa-item">
+        <div class="avatar">
+          {% if s.foto and s.foto != 'default.png' %}
+            <img src="{{ url_for('static', filename='uploads/' + s.foto) }}" alt="{{ s.nama }}">
+          {% else %}
+            {{ s.nama[0] }}
+          {% endif %}
+        </div>
+        <div class="siswa-info">
+          <div class="siswa-nama">{{ s.nama }}</div>
+          <div class="siswa-meta">{{ s.nis }} &middot; {{ s.kelas }}</div>
+        </div>
+        <span class="badge {% if s.jenis_kelamin == 'L' %}badge-blue{% else %}badge-pink{% endif %}">
+          <i class="fas {% if s.jenis_kelamin == 'L' %}fa-mars{% else %}fa-venus{% endif %}"></i>
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+    <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline" style="margin-top:16px;width:100%;justify-content:center">Lihat Semua Siswa <i class="fas fa-arrow-right"></i></a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('kelasChart');
+  if (!ctx) return;
+
+  const labels = {{ kelas_data | map(attribute='kelas') | list | tojson }};
+  const data = {{ kelas_data | map(attribute='jml') | list | tojson }};
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Jumlah Siswa',
+        data: data,
+        backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444'],
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 },
+          grid: { color: '#f3f4f6' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

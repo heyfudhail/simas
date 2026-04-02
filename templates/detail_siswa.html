@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ siswa.nama }} - SIMAS{% endblock %}
+{% block page_title %}Detail Siswa{% endblock %}
+{% block topbar_actions %}
+  <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali</a>
+  <a href="{{ url_for('main.edit_siswa', id=siswa.id) }}" class="btn btn-outline"><i class="fas fa-pen"></i> Edit</a>
+  <a href="{{ url_for('main.cetak_rapor', id=siswa.id) }}" class="btn btn-primary" target="_blank"><i class="fas fa-print"></i> Cetak Rapor</a>
+{% endblock %}
+
+{% block content %}
+<div class="grid-detail">
+  <div class="card profil-card">
+    <div class="profil-foto">
+      {% if siswa.foto and siswa.foto != 'default.png' %}
+        <img src="{{ url_for('static', filename='uploads/' + siswa.foto) }}" alt="{{ siswa.nama }}">
+      {% else %}
+        <div class="avatar xl">{{ siswa.nama[0] }}</div>
+      {% endif %}
+    </div>
+    <div class="profil-nama">{{ siswa.nama }}</div>
+    <div class="profil-sub">{{ siswa.nis }}</div>
+    <span class="badge badge-blue" style="margin-top:8px">{{ siswa.kelas }}</span>
+    <div class="profil-info">
+      <div class="info-row"><span><i class="fas fa-venus-mars"></i> Jenis Kelamin</span><strong>{{ 'Laki-laki' if siswa.jenis_kelamin == 'L' else 'Perempuan' }}</strong></div>
+      <div class="info-row"><span><i class="fas fa-map-marker-alt"></i> Tempat Lahir</span><strong>{{ siswa.tempat_lahir or '-' }}</strong></div>
+      <div class="info-row"><span><i class="fas fa-calendar"></i> Tanggal Lahir</span><strong>{{ siswa.tanggal_lahir or '-' }}</strong></div>
+      <div class="info-row"><span><i class="fas fa-phone"></i> No. Telepon</span><strong>{{ siswa.no_telp or '-' }}</strong></div>
+      <div class="info-row"><span><i class="fas fa-home"></i> Alamat</span><strong>{{ siswa.alamat or '-' }}</strong></div>
+    </div>
+    {% if rata_rata and rata_rata.rata %}
+    <div class="rata-card">
+      <div class="rata-label">Rata-rata Nilai</div>
+      <div class="rata-val {{ 'green' if rata_rata.rata >= 80 else 'yellow' if rata_rata.rata >= 70 else 'red' }}">
+        {{ rata_rata.rata }}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+      <span><i class="fas fa-clipboard-list"></i> Input Nilai Rapor</span>
+      <span class="badge badge-green">Ganjil 2025/2026</span>
+    </div>
+    <form method="POST" action="{{ url_for('main.simpan_nilai', siswa_id=siswa.id) }}">
+      <input type="hidden" name="semester" value="Ganjil 2025/2026">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Mata Pelajaran</th>
+            <th>Nilai Harian (40%)</th>
+            <th>UTS (30%)</th>
+            <th>UAS (30%)</th>
+            <th>Nilai Akhir</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set nilai_dict = {} %}
+          {% for n in nilai %}
+            {% if nilai_dict.update({n.mata_pelajaran: n}) %}{% endif %}
+          {% endfor %}
+          {% for mapel in mapel_all %}
+          {% set n = nilai_dict.get(mapel) %}
+          <tr>
+            <td><strong>{{ mapel }}</strong></td>
+            <td><input class="input input-sm" type="number" name="nh_{{ mapel }}" min="0" max="100" step="0.1"
+                value="{{ n.nilai_harian if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))"></td>
+            <td><input class="input input-sm" type="number" name="uts_{{ mapel }}" min="0" max="100" step="0.1"
+                value="{{ n.nilai_uts if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))"></td>
+            <td><input class="input input-sm" type="number" name="uas_{{ mapel }}" min="0" max="100" step="0.1"
+                value="{{ n.nilai_uas if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))"></td>
+            <td>
+              <span class="na-display {{ 'green' if n and n.nilai_akhir >= 80 else 'yellow' if n and n.nilai_akhir >= 70 else 'red' if n else '' }}">
+                {{ n.nilai_akhir if n else '-' }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> Simpan Nilai Rapor</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

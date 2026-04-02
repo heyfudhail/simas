@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if action=='edit' else 'Tambah' }} Siswa - SIMAS{% endblock %}
+{% block page_title %}{{ 'Edit Data' if action=='edit' else 'Tambah Siswa Baru' }}{% endblock %}
+{% block topbar_actions %}
+  <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali</a>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:720px">
+  <form method="POST" enctype="multipart/form-data">
+
+    <!-- ─── Upload foto siswa ─── -->
+    <div class="foto-upload-area">
+      <div class="avatar lg" id="preview-wrap">
+        {% if siswa and siswa.foto and siswa.foto != 'default.png' %}
+          <img id="foto-preview" src="{{ url_for('static', filename='uploads/' + siswa.foto) }}" alt="Foto">
+        {% else %}
+          <span id="foto-placeholder">{{ siswa.nama[0] if siswa else '?' }}</span>
+          <img id="foto-preview" src="" style="display:none" alt="Preview">
+        {% endif %}
+      </div>
+      <div>
+        <label class="btn btn-outline" for="foto" style="cursor:pointer"><i class="fas fa-camera"></i> Pilih Foto</label>
+        <input type="file" id="foto" name="foto" accept="image/*" style="display:none" onchange="previewFoto(this)">
+        <div style="font-size:12px;color:var(--gray-400);margin-top:6px">JPG, PNG, GIF &middot; Maks 2MB</div>
+      </div>
+    </div>
+
+    <!-- ─── Form input data siswa ─── -->
+    <div class="form-grid">
+      <div class="form-group">
+        <label>NISN <span class="required">*</span></label>
+        <input class="input" type="text" name="nis" value="{{ siswa.nis if siswa else '' }}" required placeholder="0012345678">
+      </div>
+      <div class="form-group">
+        <label>Jenis Kelamin <span class="required">*</span></label>
+        <select class="input" name="jenis_kelamin" required>
+          <option value="L" {{ 'selected' if siswa and siswa.jenis_kelamin == 'L' }}>Laki-laki</option>
+          <option value="P" {{ 'selected' if siswa and siswa.jenis_kelamin == 'P' }}>Perempuan</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Nama Lengkap <span class="required">*</span></label>
+        <input class="input" type="text" name="nama" value="{{ siswa.nama if siswa else '' }}" required placeholder="Masukkan nama lengkap">
+      </div>
+      <div class="form-group">
+        <label>Kelas <span class="required">*</span></label>
+        <select class="input" name="kelas" required>
+          {% for k in kelas_options %}
+            <option value="{{ k }}" {{ 'selected' if siswa and siswa.kelas == k }}>{{ k }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tempat Lahir</label>
+        <input class="input" type="text" name="tempat_lahir" value="{{ siswa.tempat_lahir if siswa else '' }}" placeholder="Bekasi">
+      </div>
+      <div class="form-group">
+        <label>Tanggal Lahir</label>
+        <input class="input" type="date" name="tanggal_lahir" value="{{ siswa.tanggal_lahir if siswa else '' }}">
+      </div>
+      <div class="form-group">
+        <label>No. Telepon</label>
+        <input class="input" type="text" name="no_telp" value="{{ siswa.no_telp if siswa else '' }}" placeholder="081234567890">
+      </div>
+      <div class="form-group full">
+        <label>Alamat</label>
+        <textarea class="input" name="alamat" rows="2" placeholder="Jl. Melati No. 12, Cikarang">{{ siswa.alamat if siswa else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-times"></i> Batal</a>
+      <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> Simpan Data</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

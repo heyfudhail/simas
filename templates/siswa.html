@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Data Siswa - SIMAS{% endblock %}
+{% block page_title %}Data Siswa{% endblock %}
+{% block topbar_actions %}
+  <a href="{{ url_for('main.export_csv') }}" class="btn btn-outline"><i class="fas fa-file-csv"></i> Export CSV</a>
+  <a href="{{ url_for('main.tambah_siswa') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Siswa</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <form method="GET" class="toolbar">
+    <input class="input" type="text" name="q" value="{{ q }}" placeholder="Cari nama / NISN...">
+    <select class="input" name="kelas">
+      <option value="">Semua Kelas</option>
+      {% for k in kelas_list %}
+        <option value="{{ k.kelas }}" {% if kelas_filter == k.kelas %}selected{% endif %}>{{ k.kelas }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Cari</button>
+    {% if q or kelas_filter %}<a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-undo"></i> Reset</a>{% endif %}
+  </form>
+
+  {% if siswa %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Foto</th>
+          <th>NISN</th>
+          <th>Nama</th>
+          <th>Kelas</th>
+          <th>L/P</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in siswa %}
+        <tr>
+          <td>
+            <div class="avatar sm">
+              {% if s.foto and s.foto != 'default.png' %}
+                <img src="{{ url_for('static', filename='uploads/' + s.foto) }}" alt="{{ s.nama }}">
+              {% else %}
+                {{ s.nama[0] }}
+              {% endif %}
+            </div>
+          </td>
+          <td><code>{{ s.nis }}</code></td>
+          <td><strong>{{ s.nama }}</strong></td>
+          <td><span class="badge badge-blue">{{ s.kelas }}</span></td>
+          <td>
+            <span class="badge {% if s.jenis_kelamin == 'L' %}badge-blue{% else %}badge-pink{% endif %}">
+              <i class="fas {% if s.jenis_kelamin == 'L' %}fa-mars{% else %}fa-venus{% endif %}"></i>
+              {{ 'L' if s.jenis_kelamin == 'L' else 'P' }}
+            </span>
+          </td>
+          <td>
+            <div class="actions">
+              <a href="{{ url_for('main.detail_siswa', id=s.id) }}" class="btn btn-sm btn-outline" title="Detail"><i class="fas fa-eye"></i></a>
+              <a href="{{ url_for('main.edit_siswa', id=s.id) }}" class="btn btn-sm btn-outline" title="Edit"><i class="fas fa-pen"></i></a>
+              <form method="POST" action="{{ url_for('main.hapus_siswa', id=s.id) }}" onsubmit="return confirm('Hapus {{ s.nama }}?')">
+                <button class="btn btn-sm btn-danger" type="submit" title="Hapus"><i class="fas fa-trash"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-footer">
+    <span>Menampilkan {{ siswa|length }} siswa</span>
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+      {% if pagination.has_prev %}
+        <a href="{{ url_for('main.daftar_siswa', page=pagination.prev_num, q=q, kelas=kelas_filter) }}"><i class="fas fa-chevron-left"></i></a>
+      {% endif %}
+      {% for p in pagination.iter_pages() %}
+        {% if p %}
+          {% if p == pagination.page %}
+            <span class="active">{{ p }}</span>
+          {% else %}
+            <a href="{{ url_for('main.daftar_siswa', page=p, q=q, kelas=kelas_filter) }}">{{ p }}</a>
+          {% endif %}
+        {% else %}
+          <span>&hellip;</span>
+        {% endif %}
+      {% endfor %}
+      {% if pagination.has_next %}
+        <a href="{{ url_for('main.daftar_siswa', page=pagination.next_num, q=q, kelas=kelas_filter) }}"><i class="fas fa-chevron-right"></i></a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon"><i class="fas fa-search"></i></div>
+    <p>Tidak ada data ditemukan</p>
+    <a href="{{ url_for('main.tambah_siswa') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Siswa</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
