@@ -68,8 +68,14 @@ def dashboard():
     kelas_data = conn.execute(
         "SELECT kelas, COUNT(*) as jml FROM siswa GROUP BY kelas"
     ).fetchall()
-    siswa_terbaru = conn.execute(
-        "SELECT * FROM siswa ORDER BY created_at DESC LIMIT 5"
+    siswa_ranking = conn.execute(
+        """SELECT s.*, ROUND(AVG(n.nilai_akhir), 1) as rata_rata
+           FROM siswa s
+           LEFT JOIN nilai n ON s.id = n.siswa_id
+           WHERE n.semester = 'Ganjil 2025/2026'
+           GROUP BY s.id
+           ORDER BY rata_rata DESC
+           LIMIT 10"""
     ).fetchall()
     avg_nilai = conn.execute(
         "SELECT s.kelas, ROUND(AVG(n.nilai_akhir),1) as rata FROM siswa s JOIN nilai n ON s.id = n.siswa_id GROUP BY s.kelas"
@@ -81,7 +87,7 @@ def dashboard():
         laki=laki,
         perempuan=perempuan,
         kelas_data=kelas_data,
-        siswa_terbaru=siswa_terbaru,
+        siswa_ranking=siswa_ranking,
         avg_nilai=avg_nilai,
     )
 

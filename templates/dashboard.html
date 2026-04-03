@@ -53,23 +53,19 @@
   </div>
 
   <div class="card">
-    <div class="card-header"><i class="fas fa-clock"></i> Siswa Terbaru</div>
+    <div class="card-header"><i class="fas fa-trophy"></i> Ranking Siswa</div>
     <div class="siswa-list">
-      {% for s in siswa_terbaru %}
+      {% for s in siswa_ranking %}
       <a href="{{ url_for('main.detail_siswa', id=s.id) }}" class="siswa-item">
-        <div class="avatar">
-          {% if s.foto and s.foto != 'default.png' %}
-            <img src="{{ url_for('static', filename='uploads/' + s.foto) }}" alt="{{ s.nama }}">
-          {% else %}
-            {{ s.nama[0] }}
-          {% endif %}
+        <div class="avatar" style="font-size:0.85rem;font-weight:700;background:{% if loop.index == 1 %}#f59e0b{% elif loop.index == 2 %}#94a3b8{% elif loop.index == 3 %}#b45309{% else %}#e5e7eb{% endif %};color:{% if loop.index <= 3 %}#fff{% else %}#374151{% endif %};">
+          {{ loop.index }}
         </div>
         <div class="siswa-info">
           <div class="siswa-nama">{{ s.nama }}</div>
-          <div class="siswa-meta">{{ s.nis }} &middot; {{ s.kelas }}</div>
+          <div class="siswa-meta">{{ s.kelas }} &middot; Rata-rata: <strong>{{ s.rata_rata }}</strong></div>
         </div>
-        <span class="badge {% if s.jenis_kelamin == 'L' %}badge-blue{% else %}badge-pink{% endif %}">
-          <i class="fas {% if s.jenis_kelamin == 'L' %}fa-mars{% else %}fa-venus{% endif %}"></i>
+        <span class="badge {% if s.rata_rata >= 85 %}badge-green{% elif s.rata_rata >= 75 %}badge-yellow{% else %}badge-red{% endif %}">
+          {{ s.rata_rata }}
         </span>
       </a>
       {% endfor %}
