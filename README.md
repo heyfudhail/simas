@@ -21,7 +21,6 @@
 | 🏫 Filter Kelas | Filter siswa berdasarkan kelas |
 | 📄 Pagination | 10 siswa per halaman |
 | 📝 Input Nilai | NH, UTS, UAS dengan auto-hitung nilai akhir |
-| 📋 Cetak Rapor | Rapor siap print dengan predikat A/B/C/D |
 | 📥 Export CSV | Download data siswa ke Excel |
 | 📱 Responsive | Tampilan menyesuaikan di HP & tablet |
 
