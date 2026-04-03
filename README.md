@@ -6,7 +6,7 @@
 
 ## 📌 Tentang Project
 
-**SIMAS** adalah aplikasi webapp simple berbasis Python Flask untuk mengelola data siswa dan nilai rapor secara digital. Dirancang untuk memudahkan pencatatan, pengelolaan, dan pencetakan rapor siswa tanpa kertas berlebihan.
+**SIMAS** adalah aplikasi webapp simple berbasis Python Flask untuk mengelola data siswa dan nilai rapor secara digital. Dirancang untuk memudahkan pencatatan, dan pengelolaan.
 
 ---
 
