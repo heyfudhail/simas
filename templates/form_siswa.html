@@ -1,76 +1,119 @@
 {% extends "base.html" %}
 {% block title %}{{ 'Edit' if action=='edit' else 'Tambah' }} Siswa - SIMAS{% endblock %}
-{% block page_title %}<h1><i class="fas fa-{% if action=='edit' %}pen{% else %}user-plus{% endif %}"></i> {{ 'Edit Data' if action=='edit' else 'Tambah Siswa Baru' }}</h1>{% endblock %}
+{% block page_title %}<h1><i class="fas fa-{% if action=='edit' %}pen{% else %}user-plus{% endif %}"></i> {{ 'Edit Data Siswa' if action=='edit' else 'Tambah Siswa Baru' }}</h1>{% endblock %}
 {% block topbar_actions %}
   <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali</a>
 {% endblock %}
 
 {% block content %}
-<div class="card" style="max-width:720px">
-  <form method="POST" enctype="multipart/form-data">
+<div style="max-width:760px">
+  <div class="card">
+    <form method="POST" enctype="multipart/form-data">
 
-    <div class="foto-upload-area">
-      <div class="avatar lg" id="preview-wrap">
-        {% if siswa and siswa.foto and siswa.foto != 'default.png' %}
-          <img id="foto-preview" src="{{ url_for('static', filename='uploads/' + siswa.foto) }}" alt="Foto">
-        {% else %}
-          <span id="foto-placeholder">{{ siswa.nama[0] if siswa else '?' }}</span>
-          <img id="foto-preview" src="" style="display:none" alt="Preview">
-        {% endif %}
+      <!-- ─── Photo Upload Section ─── -->
+      <div class="card-header" style="margin-bottom:20px">
+        <span><i class="fas fa-camera"></i> Foto Profil</span>
+        <span class="badge badge-user" style="font-size:11px">Opsional</span>
       </div>
-      <div>
-        <label class="btn btn-outline" for="foto" style="cursor:pointer"><i class="fas fa-camera"></i> Pilih Foto</label>
-        <input type="file" id="foto" name="foto" accept="image/*" style="display:none" onchange="previewFoto(this)">
-        <div style="font-size:12px;color:var(--gray-400);margin-top:6px">JPG, PNG, GIF &middot; Maks 2MB</div>
+      <div class="foto-upload-area" style="margin-bottom:28px">
+        <div class="avatar lg" id="preview-wrap" style="
+          {% if action == 'edit' %}background:linear-gradient(135deg,#7c3aed,#6d28d9){% else %}background:linear-gradient(135deg,#2563eb,#1d4ed8){% endif %};
+          color:#fff;font-size:28px;font-weight:800;">
+          {% if siswa and siswa.foto and siswa.foto != 'default.png' %}
+            <img id="foto-preview" src="{{ url_for('static', filename='uploads/' + siswa.foto) }}" alt="Foto">
+          {% else %}
+            <span id="foto-placeholder">{{ siswa.nama[0]|upper if siswa and siswa.nama else '?' }}</span>
+            <img id="foto-preview" src="" style="display:none" alt="Preview">
+          {% endif %}
+        </div>
+        <div>
+          <label class="btn btn-outline" for="foto" style="cursor:pointer"><i class="fas fa-camera"></i> Pilih Foto</label>
+          <input type="file" id="foto" name="foto" accept="image/*" style="display:none" onchange="previewFoto(this)">
+          <div style="font-size:12px;color:var(--gray-400);margin-top:8px;line-height:1.6">
+            <i class="fas fa-info-circle" style="color:var(--primary);margin-right:4px"></i>
+            JPG, PNG, GIF &middot; Maks 2MB<br>
+            {% if action == 'edit' %}<span style="color:var(--gray-500)">Kosongkan jika tidak ingin mengubah foto</span>{% endif %}
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="form-grid">
-      <div class="form-group">
-        <label>NISN <span class="required">*</span></label>
-        <input class="input" type="text" name="nis" value="{{ siswa.nis if siswa else '' }}" required placeholder="0012345678">
+      <!-- ─── Identity Section ─── -->
+      <div class="card-header" style="margin-bottom:16px;padding-top:20px;border-top:1px solid var(--gray-100)">
+        <span><i class="fas fa-id-card"></i> Data Identitas</span>
+        <span class="badge badge-danger" style="font-size:11px"><i class="fas fa-asterisk" style="font-size:8px"></i> Wajib diisi</span>
       </div>
-      <div class="form-group">
-        <label>Jenis Kelamin <span class="required">*</span></label>
-        <select class="input" name="jenis_kelamin" required>
-          <option value="L" {{ 'selected' if siswa and siswa.jenis_kelamin == 'L' }}>Laki-laki</option>
-          <option value="P" {{ 'selected' if siswa and siswa.jenis_kelamin == 'P' }}>Perempuan</option>
-        </select>
+      <div class="form-grid" style="margin-bottom:0">
+        <div class="form-group">
+          <label>NISN <span class="required">*</span></label>
+          <input class="input" type="text" name="nis" value="{{ siswa.nis if siswa else '' }}" required placeholder="0012345678" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Jenis Kelamin <span class="required">*</span></label>
+          <select class="input" name="jenis_kelamin" required>
+            <option value="L" {{ 'selected' if siswa and siswa.jenis_kelamin == 'L' }}>
+              <i class="fas fa-mars"></i> Laki-laki
+            </option>
+            <option value="P" {{ 'selected' if siswa and siswa.jenis_kelamin == 'P' }}>
+              <i class="fas fa-venus"></i> Perempuan
+            </option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Nama Lengkap <span class="required">*</span></label>
+          <input class="input" type="text" name="nama" value="{{ siswa.nama if siswa else '' }}" required placeholder="Masukkan nama lengkap siswa" id="namaInput" oninput="updateAvatarPlaceholder(this.value)">
+        </div>
+        <div class="form-group">
+          <label>Kelas <span class="required">*</span></label>
+          <select class="input" name="kelas" required>
+            {% for k in kelas_options %}
+              <option value="{{ k }}" {{ 'selected' if siswa and siswa.kelas == k }}>{{ k }}</option>
+            {% endfor %}
+          </select>
+        </div>
       </div>
-      <div class="form-group full">
-        <label>Nama Lengkap <span class="required">*</span></label>
-        <input class="input" type="text" name="nama" value="{{ siswa.nama if siswa else '' }}" required placeholder="Masukkan nama lengkap">
-      </div>
-      <div class="form-group">
-        <label>Kelas <span class="required">*</span></label>
-        <select class="input" name="kelas" required>
-          {% for k in kelas_options %}
-            <option value="{{ k }}" {{ 'selected' if siswa and siswa.kelas == k }}>{{ k }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Tempat Lahir</label>
-        <input class="input" type="text" name="tempat_lahir" value="{{ siswa.tempat_lahir if siswa else '' }}" placeholder="Bekasi">
-      </div>
-      <div class="form-group">
-        <label>Tanggal Lahir</label>
-        <input class="input" type="date" name="tanggal_lahir" value="{{ siswa.tanggal_lahir if siswa else '' }}">
-      </div>
-      <div class="form-group">
-        <label>No. Telepon</label>
-        <input class="input" type="text" name="no_telp" value="{{ siswa.no_telp if siswa else '' }}" placeholder="081234567890">
-      </div>
-      <div class="form-group full">
-        <label>Alamat</label>
-        <textarea class="input" name="alamat" rows="2" placeholder="Jl. Melati No. 12, Cikarang">{{ siswa.alamat if siswa else '' }}</textarea>
-      </div>
-    </div>
 
-    <div class="form-actions">
-      <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-times"></i> Batal</a>
-      <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> Simpan Data</button>
-    </div>
-  </form>
+      <!-- ─── Personal Info Section ─── -->
+      <div class="card-header" style="margin-top:28px;margin-bottom:16px;padding-top:20px;border-top:1px solid var(--gray-100)">
+        <span><i class="fas fa-user-circle"></i> Data Pribadi</span>
+        <span class="badge badge-user" style="font-size:11px">Opsional</span>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label><i class="fas fa-map-marker-alt" style="color:var(--gray-400);margin-right:4px"></i>Tempat Lahir</label>
+          <input class="input" type="text" name="tempat_lahir" value="{{ siswa.tempat_lahir if siswa else '' }}" placeholder="Bekasi">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-calendar-alt" style="color:var(--gray-400);margin-right:4px"></i>Tanggal Lahir</label>
+          <input class="input" type="date" name="tanggal_lahir" value="{{ siswa.tanggal_lahir if siswa else '' }}">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-phone-alt" style="color:var(--gray-400);margin-right:4px"></i>No. Telepon</label>
+          <input class="input" type="text" name="no_telp" value="{{ siswa.no_telp if siswa else '' }}" placeholder="081234567890">
+        </div>
+        <div class="form-group full">
+          <label><i class="fas fa-home" style="color:var(--gray-400);margin-right:4px"></i>Alamat</label>
+          <textarea class="input" name="alamat" rows="2" placeholder="Jl. Melati No. 12, Cikarang">{{ siswa.alamat if siswa else '' }}</textarea>
+        </div>
+      </div>
+
+      <!-- ─── Actions ─── -->
+      <div class="form-actions">
+        <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-times"></i> Batal</a>
+        <button class="btn btn-primary" type="submit">
+          <i class="fas fa-{% if action=='edit' %}save{% else %}user-plus{% endif %}"></i>
+          {{ 'Simpan Perubahan' if action=='edit' else 'Tambah Siswa' }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateAvatarPlaceholder(val) {
+  const ph = document.getElementById('foto-placeholder');
+  if (ph) ph.textContent = val ? val[0].toUpperCase() : '?';
+}
+</script>
 {% endblock %}

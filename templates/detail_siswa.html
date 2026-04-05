@@ -4,54 +4,126 @@
 {% block topbar_actions %}
   <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali</a>
   {% if current_user.role == 'admin' %}
-  <a href="{{ url_for('main.edit_siswa', id=siswa.id) }}" class="btn btn-outline"><i class="fas fa-pen"></i> Edit</a>
+  <a href="{{ url_for('main.edit_siswa', id=siswa.id) }}" class="btn btn-primary"><i class="fas fa-pen"></i> Edit Data</a>
   {% endif %}
 {% endblock %}
 
 {% block content %}
+{% set kelas_prefix = siswa.kelas.split(' ')[0] if siswa.kelas else 'X' %}
+{% set kelas_colors = {
+  'X':   'linear-gradient(135deg,#2563eb,#1d4ed8)',
+  'XI':  'linear-gradient(135deg,#7c3aed,#6d28d9)',
+  'XII': 'linear-gradient(135deg,#059669,#047857)'
+} %}
+{% set avatar_bg = kelas_colors.get(kelas_prefix, 'linear-gradient(135deg,#0891b2,#0e7490)') %}
+{% set kelas_badge = {'X':'badge-blue','XI':'badge-purple','XII':'badge-green'} %}
+{% set badge_cls = kelas_badge.get(kelas_prefix, 'badge-blue') %}
+
 <div class="grid-detail">
+  <!-- ─── Profile Card ─── -->
   <div class="card profil-card">
+
+    <!-- Avatar / Photo -->
     <div class="profil-foto">
       {% if siswa.foto and siswa.foto != 'default.png' %}
         <img src="{{ url_for('static', filename='uploads/' + siswa.foto) }}" alt="{{ siswa.nama }}">
       {% else %}
-        <div class="avatar xl">{{ siswa.nama[0] }}</div>
+        <div class="avatar xl" style="background:{{ avatar_bg }};color:#fff;font-size:42px;font-weight:800;margin:0 auto;box-shadow:0 8px 24px rgba(37,99,235,0.25);">
+          {{ siswa.nama[0]|upper }}
+        </div>
       {% endif %}
     </div>
-    <div class="profil-nama">{{ siswa.nama }}</div>
-    <div class="profil-sub">NIS: {{ siswa.nis }}</div>
-    <span class="badge badge-blue" style="margin-top:8px"><i class="fas fa-chalkboard"></i> {{ siswa.kelas }}</span>
-    <div class="profil-info">
-      <div class="info-row"><span><i class="fas fa-venus-mars"></i> Jenis Kelamin</span><strong>{{ 'Laki-laki' if siswa.jenis_kelamin == 'L' else 'Perempuan' }}</strong></div>
-      <div class="info-row"><span><i class="fas fa-map-marker-alt"></i> Tempat Lahir</span><strong>{{ siswa.tempat_lahir or '-' }}</strong></div>
-      <div class="info-row"><span><i class="fas fa-calendar"></i> Tanggal Lahir</span><strong>{{ siswa.tanggal_lahir or '-' }}</strong></div>
-      <div class="info-row"><span><i class="fas fa-phone"></i> No. Telepon</span><strong>{{ siswa.no_telp or '-' }}</strong></div>
-      <div class="info-row"><span><i class="fas fa-home"></i> Alamat</span><strong>{{ siswa.alamat or '-' }}</strong></div>
+
+    <!-- Name & NIS -->
+    <div class="profil-nama" style="margin-top:14px">{{ siswa.nama }}</div>
+    <div class="profil-sub" style="margin-top:4px">
+      <i class="fas fa-id-card" style="color:var(--gray-400);margin-right:4px"></i>{{ siswa.nis }}
     </div>
-    {% if rata_rata and rata_rata.rata %}
-    <div class="rata-card">
-      <div class="rata-label">Rata-rata Nilai</div>
-      <div class="rata-val {{ 'green' if rata_rata.rata >= 80 else 'yellow' if rata_rata.rata >= 70 else 'red' }}">
-        {{ rata_rata.rata }}
+
+    <!-- Badges -->
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+      <span class="badge {{ badge_cls }}"><i class="fas fa-chalkboard" style="font-size:10px"></i> {{ siswa.kelas }}</span>
+      {% if siswa.jenis_kelamin == 'L' %}
+      <span class="badge badge-blue"><i class="fas fa-mars" style="font-size:10px"></i> Laki-laki</span>
+      {% else %}
+      <span class="badge badge-pink"><i class="fas fa-venus" style="font-size:10px"></i> Perempuan</span>
+      {% endif %}
+    </div>
+
+    <!-- Info Rows -->
+    <div class="profil-info">
+      <div class="info-row">
+        <span><i class="fas fa-map-marker-alt"></i> Tempat Lahir</span>
+        <strong>{{ siswa.tempat_lahir or '—' }}</strong>
       </div>
+      <div class="info-row">
+        <span><i class="fas fa-calendar-alt"></i> Tanggal Lahir</span>
+        <strong>{{ siswa.tanggal_lahir or '—' }}</strong>
+      </div>
+      <div class="info-row">
+        <span><i class="fas fa-phone-alt"></i> No. Telepon</span>
+        <strong>{{ siswa.no_telp or '—' }}</strong>
+      </div>
+      <div class="info-row">
+        <span><i class="fas fa-home"></i> Alamat</span>
+        <strong>{{ siswa.alamat or '—' }}</strong>
+      </div>
+    </div>
+
+    <!-- Rata-rata Card -->
+    {% if rata_rata and rata_rata.rata %}
+    {% set rata = rata_rata.rata %}
+    {% set rata_color = '#2563eb' if rata >= 80 else '#f59e0b' if rata >= 70 else '#ef4444' %}
+    {% set rata_bg    = 'var(--primary-50)' if rata >= 80 else 'var(--warning-light)' if rata >= 70 else 'var(--danger-light)' %}
+    {% set rata_border= 'var(--primary-lighter)' if rata >= 80 else '#fde68a' if rata >= 70 else '#fecaca' %}
+    <div class="rata-card" style="background:{{ rata_bg }};border-color:{{ rata_border }};margin-top:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="rata-label" style="color:{{ rata_color }}">
+          <i class="fas fa-chart-line" style="margin-right:4px"></i>Rata-rata Nilai
+        </div>
+        <span class="badge" style="background:{{ rata_color }};color:#fff;font-size:10px">
+          {% if rata >= 80 %}Sangat Baik{% elif rata >= 70 %}Baik{% else %}Perlu Perhatian{% endif %}
+        </span>
+      </div>
+      <div class="rata-val {{ 'green' if rata >= 80 else 'yellow' if rata >= 70 else 'red' }}" style="font-size:40px;letter-spacing:-2px">
+        {{ rata }}
+      </div>
+      <!-- Progress bar -->
+      <div style="margin-top:10px;height:6px;background:rgba(0,0,0,0.08);border-radius:999px;overflow:hidden">
+        <div style="height:100%;width:{{ [rata, 100]|min }}%;background:{{ rata_color }};border-radius:999px;transition:width 0.6s ease"></div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Admin quick actions -->
+    {% if current_user.role == 'admin' %}
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:center">
+      <a href="{{ url_for('main.edit_siswa', id=siswa.id) }}" class="btn btn-outline btn-sm" style="flex:1;justify-content:center">
+        <i class="fas fa-pen"></i> Edit
+      </a>
+      <button class="btn btn-sm btn-danger" style="flex:1;justify-content:center"
+        onclick="confirmAction('Hapus siswa &quot;{{ siswa.nama }}&quot;?\nTindakan ini tidak dapat dibatalkan.', '{{ url_for('main.hapus_siswa', id=siswa.id) }}')">
+        <i class="fas fa-trash"></i> Hapus
+      </button>
     </div>
     {% endif %}
   </div>
 
+  <!-- ─── Nilai Rapor Card ─── -->
   <div class="card">
     <div class="card-header">
       <span><i class="fas fa-clipboard-list"></i> Nilai Rapor</span>
-      <span class="badge badge-green">Ganjil 2025/2026</span>
+      <span class="badge badge-green"><i class="fas fa-calendar-check" style="font-size:10px"></i> Ganjil 2025/2026</span>
     </div>
     <div class="table-wrap">
       <table class="table">
         <thead>
           <tr>
             <th>Mata Pelajaran</th>
-            <th>Nilai Harian (40%)</th>
-            <th>UTS (30%)</th>
-            <th>UAS (30%)</th>
-            <th>Nilai Akhir</th>
+            <th style="text-align:center">Harian <span style="font-weight:400;opacity:0.7">(40%)</span></th>
+            <th style="text-align:center">UTS <span style="font-weight:400;opacity:0.7">(30%)</span></th>
+            <th style="text-align:center">UAS <span style="font-weight:400;opacity:0.7">(30%)</span></th>
+            <th style="text-align:center">Nilai Akhir</th>
           </tr>
         </thead>
         <tbody>
@@ -62,34 +134,41 @@
           {% for mapel in mapel_all %}
           {% set n = nilai_dict.get(mapel) %}
           <tr>
-            <td><strong>{{ mapel }}</strong></td>
             <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:6px;height:6px;border-radius:50%;background:var(--primary);flex-shrink:0"></div>
+                <strong>{{ mapel }}</strong>
+              </div>
+            </td>
+            <td style="text-align:center">
               {% if current_user.role == 'admin' %}
               <input class="input input-sm" type="number" name="nh_{{ mapel }}" min="0" max="100" step="0.1"
-                  value="{{ n.nilai_harian if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))" form="nilaiForm">
+                  value="{{ n.nilai_harian if n else '' }}" placeholder="—" oninput="hitungNA(this.closest('tr'))" form="nilaiForm">
               {% else %}
-              {{ n.nilai_harian if n else '-' }}
+              <span class="text-muted">{{ n.nilai_harian if n else '—' }}</span>
               {% endif %}
             </td>
-            <td>
+            <td style="text-align:center">
               {% if current_user.role == 'admin' %}
               <input class="input input-sm" type="number" name="uts_{{ mapel }}" min="0" max="100" step="0.1"
-                  value="{{ n.nilai_uts if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))" form="nilaiForm">
+                  value="{{ n.nilai_uts if n else '' }}" placeholder="—" oninput="hitungNA(this.closest('tr'))" form="nilaiForm">
               {% else %}
-              {{ n.nilai_uts if n else '-' }}
+              <span class="text-muted">{{ n.nilai_uts if n else '—' }}</span>
               {% endif %}
             </td>
-            <td>
+            <td style="text-align:center">
               {% if current_user.role == 'admin' %}
               <input class="input input-sm" type="number" name="uas_{{ mapel }}" min="0" max="100" step="0.1"
-                  value="{{ n.nilai_uas if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))" form="nilaiForm">
+                  value="{{ n.nilai_uas if n else '' }}" placeholder="—" oninput="hitungNA(this.closest('tr'))" form="nilaiForm">
               {% else %}
-              {{ n.nilai_uas if n else '-' }}
+              <span class="text-muted">{{ n.nilai_uas if n else '—' }}</span>
               {% endif %}
             </td>
-            <td>
-              <span class="na-display {{ 'green' if n and n.nilai_akhir >= 80 else 'yellow' if n and n.nilai_akhir >= 70 else 'red' if n else '' }}">
-                {{ n.nilai_akhir if n else '-' }}
+            <td style="text-align:center">
+              <span class="na-display {{ 'green' if n and n.nilai_akhir >= 80 else 'yellow' if n and n.nilai_akhir >= 70 else 'red' if n else '' }}"
+                    style="display:inline-flex;align-items:center;justify-content:center;min-width:48px;padding:4px 10px;border-radius:20px;
+                           {% if n %}background:{{ 'var(--primary-100)' if n.nilai_akhir >= 80 else 'var(--warning-light)' if n.nilai_akhir >= 70 else 'var(--danger-light)' }}{% endif %}">
+                {{ n.nilai_akhir if n else '—' }}
               </span>
             </td>
           </tr>
