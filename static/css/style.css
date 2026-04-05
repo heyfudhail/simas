@@ -1231,6 +1231,8 @@ textarea.input {
   cursor: pointer;
   font-size: 13px;
   transition: var(--transition);
+  text-decoration: none;
+  flex-shrink: 0;
 }
 
 .btn-icon.btn-edit {
@@ -1253,6 +1255,17 @@ textarea.input {
   background: var(--danger);
   color: #fff;
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.btn-icon.btn-view {
+  background: var(--primary-50);
+  color: var(--primary);
+}
+
+.btn-icon.btn-view:hover {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 .text-muted {

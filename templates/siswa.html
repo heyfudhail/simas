@@ -23,47 +23,75 @@
   </form>
 
   {% if siswa %}
+  <div class="card-header" style="margin-bottom:0;padding-bottom:0;border-bottom:1px solid var(--gray-100);padding-bottom:16px;">
+    <span><i class="fas fa-list"></i> Daftar Siswa</span>
+    <span class="badge badge-blue">{{ siswa|length }}{% if pagination and pagination.pages > 1 %} / {{ pagination.total }}{% endif %} siswa</span>
+  </div>
   <div class="table-wrap">
     <table class="table">
       <thead>
         <tr>
-          <th>Foto</th>
+          <th>Siswa</th>
           <th>NISN</th>
-          <th>Nama</th>
           <th>Kelas</th>
-          <th>L/P</th>
+          <th>Jenis Kelamin</th>
           <th>Aksi</th>
         </tr>
       </thead>
       <tbody>
         {% for s in siswa %}
+        {# Assign gradient color based on class name #}
+        {% set kelas_colors = {
+          'X': 'linear-gradient(135deg,#2563eb,#1d4ed8)',
+          'XI': 'linear-gradient(135deg,#7c3aed,#6d28d9)',
+          'XII': 'linear-gradient(135deg,#059669,#047857)'
+        } %}
+        {% set kelas_prefix = s.kelas.split(' ')[0] if s.kelas else 'X' %}
+        {% set avatar_bg = kelas_colors.get(kelas_prefix, 'linear-gradient(135deg,#0891b2,#0e7490)') %}
         <tr>
           <td>
-            <div class="avatar sm">
-              {% if s.foto and s.foto != 'default.png' %}
-                <img src="{{ url_for('static', filename='uploads/' + s.foto) }}" alt="{{ s.nama }}">
-              {% else %}
-                {{ s.nama[0] }}
-              {% endif %}
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="avatar sm" style="background:{{ avatar_bg }};color:#fff;font-size:13px;font-weight:700;flex-shrink:0;">
+                {% if s.foto and s.foto != 'default.png' %}
+                  <img src="{{ url_for('static', filename='uploads/' + s.foto) }}" alt="{{ s.nama }}">
+                {% else %}
+                  {{ s.nama[0]|upper }}
+                {% endif %}
+              </div>
+              <div>
+                <div style="font-weight:600;color:var(--gray-900);font-size:14px;">{{ s.nama }}</div>
+              </div>
             </div>
           </td>
           <td><code>{{ s.nis }}</code></td>
-          <td><strong>{{ s.nama }}</strong></td>
-          <td><span class="badge badge-blue">{{ s.kelas }}</span></td>
           <td>
-            <span class="badge {% if s.jenis_kelamin == 'L' %}badge-blue{% else %}badge-pink{% endif %}">
-              <i class="fas {% if s.jenis_kelamin == 'L' %}fa-mars{% else %}fa-venus{% endif %}"></i>
-              {{ 'L' if s.jenis_kelamin == 'L' else 'P' }}
-            </span>
+            {% set kelas_badge = {
+              'X': 'badge-blue',
+              'XI': 'badge-purple',
+              'XII': 'badge-green'
+            } %}
+            {% set badge_cls = kelas_badge.get(kelas_prefix, 'badge-blue') %}
+            <span class="badge {{ badge_cls }}"><i class="fas fa-chalkboard" style="font-size:10px"></i> {{ s.kelas }}</span>
+          </td>
+          <td>
+            {% if s.jenis_kelamin == 'L' %}
+            <span class="badge badge-blue"><i class="fas fa-mars" style="font-size:10px"></i> Laki-laki</span>
+            {% else %}
+            <span class="badge badge-pink"><i class="fas fa-venus" style="font-size:10px"></i> Perempuan</span>
+            {% endif %}
           </td>
           <td>
             <div class="actions">
-              <a href="{{ url_for('main.detail_siswa', id=s.id) }}" class="btn btn-sm btn-outline" title="Detail"><i class="fas fa-eye"></i></a>
+              <a href="{{ url_for('main.detail_siswa', id=s.id) }}" class="btn-icon btn-view" data-tooltip="Detail">
+                <i class="fas fa-eye"></i>
+              </a>
               {% if current_user.role == 'admin' %}
-              <a href="{{ url_for('main.edit_siswa', id=s.id) }}" class="btn btn-sm btn-outline" title="Edit"><i class="fas fa-pen"></i></a>
-              <form method="POST" action="{{ url_for('main.hapus_siswa', id=s.id) }}" onsubmit="return confirm('Hapus {{ s.nama }}?')">
-                <button class="btn btn-sm btn-danger" type="submit" title="Hapus"><i class="fas fa-trash"></i></button>
-              </form>
+              <a href="{{ url_for('main.edit_siswa', id=s.id) }}" class="btn-icon btn-edit" data-tooltip="Edit">
+                <i class="fas fa-pen"></i>
+              </a>
+              <button class="btn-icon btn-delete" onclick="confirmAction('Hapus siswa &quot;{{ s.nama }}&quot;?\nTindakan ini tidak dapat dibatalkan.', '{{ url_for('main.hapus_siswa', id=s.id) }}')" data-tooltip="Hapus">
+                <i class="fas fa-trash"></i>
+              </button>
               {% endif %}
             </div>
           </td>
@@ -74,7 +102,7 @@
   </div>
 
   <div class="table-footer">
-    <span>Menampilkan {{ siswa|length }} siswa</span>
+    <span class="text-muted" style="font-size:13px">Menampilkan {{ siswa|length }}{% if pagination and pagination.total %} dari {{ pagination.total }}{% endif %} siswa</span>
     {% if pagination and pagination.pages > 1 %}
     <div class="pagination">
       {% if pagination.has_prev %}
@@ -99,8 +127,8 @@
   </div>
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon"><i class="fas fa-search"></i></div>
-    <p>Tidak ada data ditemukan</p>
+    <div class="empty-icon"><i class="fas fa-user-slash"></i></div>
+    <p>Tidak ada data siswa ditemukan</p>
     {% if current_user.role == 'admin' %}
     <a href="{{ url_for('main.tambah_siswa') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Siswa</a>
     {% endif %}
