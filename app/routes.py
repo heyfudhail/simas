@@ -1,10 +1,12 @@
 # ─── ROUTES / HALAMAN ───
-# Semua endpoint aplikasi: dashboard, CRUD siswa, nilai, rapor, export
+# Semua endpoint aplikasi: dashboard, CRUD siswa, nilai, rapor, export, auth, user management
 import os
 import uuid
 import sqlite3
 import csv
 import io
+import hashlib
+from functools import wraps
 from flask import (
     Blueprint,
     render_template,
@@ -15,11 +17,167 @@ from flask import (
     current_app,
     Response,
 )
-from .models import get_db
+from flask_login import login_user, logout_user, login_required, current_user
+from .models import get_db, User
 from .config import ALLOWED_EXTENSIONS, MAPEL, KELAS_OPTIONS
 
 main = Blueprint("main", __name__)
 PER_PAGE = 10  # Jumlah siswa per halaman
+
+
+# ─── Decorator: hanya admin ───
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != "admin":
+            flash(
+                "Akses ditolak! Hanya admin yang dapat mengakses halaman ini.", "error"
+            )
+            return redirect(url_for("main.dashboard"))
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+# ─── Decorator: user biasa tidak bisa write (hanya admin) ───
+def write_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != "admin":
+            flash("Akses ditolak! Hanya admin yang dapat melakukan aksi ini.", "error")
+            return redirect(url_for("main.dashboard"))
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+# ─── HELPER: hash password ───
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+# ─── LOGIN ───
+@main.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("main.dashboard"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        conn = get_db()
+        user_row = conn.execute(
+            "SELECT * FROM users WHERE username = ? AND is_active = 1", (username,)
+        ).fetchone()
+        conn.close()
+
+        if user_row and user_row["password"] == hash_password(password):
+            user = User(user_row)
+            login_user(user)
+            next_page = request.args.get("next")
+            return redirect(next_page if next_page else url_for("main.dashboard"))
+        else:
+            flash("Username atau password salah!", "error")
+
+    return render_template("login.html")
+
+
+# ─── LOGOUT ───
+@main.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("Anda telah logout.", "success")
+    return redirect(url_for("main.login"))
+
+
+# ─── USER MANAGEMENT (admin only) ───
+@main.route("/users")
+@login_required
+@admin_required
+def daftar_users():
+    conn = get_db()
+    users = conn.execute("SELECT * FROM users ORDER BY created_at DESC").fetchall()
+    conn.close()
+    return render_template("users.html", users=users)
+
+
+@main.route("/users/tambah", methods=["POST"])
+@login_required
+@admin_required
+def tambah_user():
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "")
+    nama_lengkap = request.form.get("nama_lengkap", "").strip()
+    role = request.form.get("role", "user")
+
+    if not username or not password or not nama_lengkap:
+        flash("Semua field wajib diisi!", "error")
+        return redirect(url_for("main.daftar_users"))
+
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT INTO users (username, password, nama_lengkap, role) VALUES (?, ?, ?, ?)",
+            (username, hash_password(password), nama_lengkap, role),
+        )
+        conn.commit()
+        flash(f"User '{username}' berhasil ditambahkan!", "success")
+    except sqlite3.IntegrityError:
+        flash(f"Username '{username}' sudah terdaftar!", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for("main.daftar_users"))
+
+
+@main.route("/users/edit/<int:id>", methods=["POST"])
+@login_required
+@admin_required
+def edit_user(id):
+    password = request.form.get("password", "").strip()
+    nama_lengkap = request.form.get("nama_lengkap", "").strip()
+    role = request.form.get("role", "user")
+
+    if not nama_lengkap:
+        flash("Nama lengkap wajib diisi!", "error")
+        return redirect(url_for("main.daftar_users"))
+
+    conn = get_db()
+    if password:
+        conn.execute(
+            "UPDATE users SET nama_lengkap = ?, role = ?, password = ? WHERE id = ?",
+            (nama_lengkap, role, hash_password(password), id),
+        )
+    else:
+        conn.execute(
+            "UPDATE users SET nama_lengkap = ?, role = ? WHERE id = ?",
+            (nama_lengkap, role, id),
+        )
+    conn.commit()
+    conn.close()
+    flash("User berhasil diperbarui!", "success")
+    return redirect(url_for("main.daftar_users"))
+
+
+@main.route("/users/hapus/<int:id>", methods=["POST"])
+@login_required
+@admin_required
+def hapus_user(id):
+    if id == current_user.id:
+        flash("Anda tidak bisa menghapus akun sendiri!", "error")
+        return redirect(url_for("main.daftar_users"))
+
+    conn = get_db()
+    conn.execute("DELETE FROM users WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+    flash("User berhasil dihapus!", "success")
+    return redirect(url_for("main.daftar_users"))
+
+
+# ─── Cek ekstensi file yang diizinkan ───
 
 
 # ─── Cek ekstensi file yang diizinkan ───
@@ -56,6 +214,7 @@ class Pagination:
 
 # ─── DASHBOARD ───
 @main.route("/")
+@login_required
 def dashboard():
     conn = get_db()
     total = conn.execute("SELECT COUNT(*) FROM siswa").fetchone()[0]
@@ -94,6 +253,7 @@ def dashboard():
 
 # ─── DAFTAR SISWA (dengan pencarian, filter, pagination) ───
 @main.route("/siswa")
+@login_required
 def daftar_siswa():
     q = request.args.get("q", "")
     kelas_filter = request.args.get("kelas", "")
@@ -141,7 +301,12 @@ def daftar_siswa():
 
 # ─── EXPORT DATA SISWA KE CSV ───
 @main.route("/siswa/export")
+@login_required
 def export_csv():
+    if current_user.role != "admin":
+        flash("Akses ditolak! Hanya admin yang dapat mengunduh CSV.", "error")
+        return redirect(url_for("main.daftar_siswa"))
+
     conn = get_db()
     siswa = conn.execute("SELECT * FROM siswa ORDER BY nama").fetchall()
     conn.close()
@@ -195,6 +360,8 @@ def export_csv():
 
 # ─── IMPORT DATA DARI CSV ───
 @main.route("/siswa/import", methods=["GET", "POST"])
+@login_required
+@write_required
 def import_csv():
     if request.method == "POST":
         file = request.files.get("file")
@@ -256,6 +423,8 @@ def import_csv():
 
 # ─── TAMBAH SISWA ───
 @main.route("/siswa/tambah", methods=["GET", "POST"])
+@login_required
+@write_required
 def tambah_siswa():
     if request.method == "POST":
         foto_filename = _handle_upload(request.files.get("foto"), "default.png")
@@ -292,6 +461,8 @@ def tambah_siswa():
 
 # ─── EDIT SISWA ───
 @main.route("/siswa/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+@write_required
 def edit_siswa(id):
     conn = get_db()
     siswa = conn.execute("SELECT * FROM siswa WHERE id=?", (id,)).fetchone()
@@ -329,6 +500,8 @@ def edit_siswa(id):
 
 # ─── HAPUS SISWA ───
 @main.route("/siswa/hapus/<int:id>", methods=["POST"])
+@login_required
+@write_required
 def hapus_siswa(id):
     conn = get_db()
     conn.execute("DELETE FROM siswa WHERE id=?", (id,))
@@ -340,6 +513,7 @@ def hapus_siswa(id):
 
 # ─── DETAIL SISWA + INPUT NILAI ───
 @main.route("/siswa/<int:id>")
+@login_required
 def detail_siswa(id):
     conn = get_db()
     siswa = conn.execute("SELECT * FROM siswa WHERE id=?", (id,)).fetchone()
@@ -367,6 +541,8 @@ def detail_siswa(id):
 
 # ─── SIMPAN NILAI RAPOR ───
 @main.route("/nilai/simpan/<int:siswa_id>", methods=["POST"])
+@login_required
+@write_required
 def simpan_nilai(siswa_id):
     conn = get_db()
     semester = request.form.get("semester", "Ganjil 2025/2026")

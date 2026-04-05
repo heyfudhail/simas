@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block title %}{{ siswa.nama }} - SIMAS{% endblock %}
-{% block page_title %}Detail Siswa{% endblock %}
+{% block page_title %}<h1><i class="fas fa-user"></i> Detail Siswa</h1>{% endblock %}
 {% block topbar_actions %}
   <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali</a>
+  {% if current_user.role == 'admin' %}
   <a href="{{ url_for('main.edit_siswa', id=siswa.id) }}" class="btn btn-outline"><i class="fas fa-pen"></i> Edit</a>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -17,8 +19,8 @@
       {% endif %}
     </div>
     <div class="profil-nama">{{ siswa.nama }}</div>
-    <div class="profil-sub">{{ siswa.nis }}</div>
-    <span class="badge badge-blue" style="margin-top:8px">{{ siswa.kelas }}</span>
+    <div class="profil-sub">NIS: {{ siswa.nis }}</div>
+    <span class="badge badge-blue" style="margin-top:8px"><i class="fas fa-chalkboard"></i> {{ siswa.kelas }}</span>
     <div class="profil-info">
       <div class="info-row"><span><i class="fas fa-venus-mars"></i> Jenis Kelamin</span><strong>{{ 'Laki-laki' if siswa.jenis_kelamin == 'L' else 'Perempuan' }}</strong></div>
       <div class="info-row"><span><i class="fas fa-map-marker-alt"></i> Tempat Lahir</span><strong>{{ siswa.tempat_lahir or '-' }}</strong></div>
@@ -37,12 +39,11 @@
   </div>
 
   <div class="card">
-    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
-      <span><i class="fas fa-clipboard-list"></i> Input Nilai Rapor</span>
+    <div class="card-header">
+      <span><i class="fas fa-clipboard-list"></i> Nilai Rapor</span>
       <span class="badge badge-green">Ganjil 2025/2026</span>
     </div>
-    <form method="POST" action="{{ url_for('main.simpan_nilai', siswa_id=siswa.id) }}">
-      <input type="hidden" name="semester" value="Ganjil 2025/2026">
+    <div class="table-wrap">
       <table class="table">
         <thead>
           <tr>
@@ -62,12 +63,30 @@
           {% set n = nilai_dict.get(mapel) %}
           <tr>
             <td><strong>{{ mapel }}</strong></td>
-            <td><input class="input input-sm" type="number" name="nh_{{ mapel }}" min="0" max="100" step="0.1"
-                value="{{ n.nilai_harian if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))"></td>
-            <td><input class="input input-sm" type="number" name="uts_{{ mapel }}" min="0" max="100" step="0.1"
-                value="{{ n.nilai_uts if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))"></td>
-            <td><input class="input input-sm" type="number" name="uas_{{ mapel }}" min="0" max="100" step="0.1"
-                value="{{ n.nilai_uas if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))"></td>
+            <td>
+              {% if current_user.role == 'admin' %}
+              <input class="input input-sm" type="number" name="nh_{{ mapel }}" min="0" max="100" step="0.1"
+                  value="{{ n.nilai_harian if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))" form="nilaiForm">
+              {% else %}
+              {{ n.nilai_harian if n else '-' }}
+              {% endif %}
+            </td>
+            <td>
+              {% if current_user.role == 'admin' %}
+              <input class="input input-sm" type="number" name="uts_{{ mapel }}" min="0" max="100" step="0.1"
+                  value="{{ n.nilai_uts if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))" form="nilaiForm">
+              {% else %}
+              {{ n.nilai_uts if n else '-' }}
+              {% endif %}
+            </td>
+            <td>
+              {% if current_user.role == 'admin' %}
+              <input class="input input-sm" type="number" name="uas_{{ mapel }}" min="0" max="100" step="0.1"
+                  value="{{ n.nilai_uas if n else '' }}" placeholder="0" oninput="hitungNA(this.closest('tr'))" form="nilaiForm">
+              {% else %}
+              {{ n.nilai_uas if n else '-' }}
+              {% endif %}
+            </td>
             <td>
               <span class="na-display {{ 'green' if n and n.nilai_akhir >= 80 else 'yellow' if n and n.nilai_akhir >= 70 else 'red' if n else '' }}">
                 {{ n.nilai_akhir if n else '-' }}
@@ -77,10 +96,15 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
+    {% if current_user.role == 'admin' %}
+    <form id="nilaiForm" method="POST" action="{{ url_for('main.simpan_nilai', siswa_id=siswa.id) }}">
+      <input type="hidden" name="semester" value="Ganjil 2025/2026">
       <div class="form-actions">
         <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> Simpan Nilai Rapor</button>
       </div>
     </form>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

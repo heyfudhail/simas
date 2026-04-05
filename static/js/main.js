@@ -1,3 +1,4 @@
+/* ─── Photo Preview ─── */
 function previewFoto(input) {
   const preview = document.getElementById('foto-preview');
   const placeholder = document.getElementById('foto-placeholder');
@@ -12,6 +13,7 @@ function previewFoto(input) {
   }
 }
 
+/* ─── Hitung Nilai Akhir ─── */
 function hitungNA(row) {
   const inputs = row.querySelectorAll('input[type="number"]');
   if (inputs.length < 3) return;
@@ -26,6 +28,70 @@ function hitungNA(row) {
   }
 }
 
+/* ─── Sidebar Toggle (Mobile) ─── */
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const icon = document.getElementById('menuIcon');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+  if (sidebar.classList.contains('open')) {
+    icon.className = 'fas fa-times';
+  } else {
+    icon.className = 'fas fa-bars';
+  }
+}
+
+/* ─── Modal Utilities ─── */
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function closeModalOutside(event, id) {
+  if (event.target === document.getElementById(id)) {
+    closeModal(id);
+  }
+}
+
+/* ─── Confirm Delete ─── */
+function confirmDelete(name, url) {
+  if (confirm('Hapus user "' + name + '"?\nTindakan ini tidak dapat dibatalkan.')) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
+/* ─── Confirm Delete with custom message ─── */
+function confirmAction(message, url) {
+  if (confirm(message)) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
+/* ─── Close modal with Escape key ─── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.show').forEach(m => {
+      m.classList.remove('show');
+      document.body.style.overflow = '';
+    });
+  }
+});
+
+/* ─── Auto-dismiss alerts ─── */
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.alert').forEach(el => {
     setTimeout(() => {

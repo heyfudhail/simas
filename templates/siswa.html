@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Data Siswa - SIMAS{% endblock %}
-{% block page_title %}Data Siswa{% endblock %}
+{% block page_title %}<h1><i class="fas fa-users"></i> Data Siswa</h1>{% endblock %}
 {% block topbar_actions %}
+  {% if current_user.role == 'admin' %}
   <a href="{{ url_for('main.export_csv') }}" class="btn btn-outline"><i class="fas fa-file-csv"></i> Export CSV</a>
   <a href="{{ url_for('main.tambah_siswa') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Siswa</a>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -57,10 +59,12 @@
           <td>
             <div class="actions">
               <a href="{{ url_for('main.detail_siswa', id=s.id) }}" class="btn btn-sm btn-outline" title="Detail"><i class="fas fa-eye"></i></a>
+              {% if current_user.role == 'admin' %}
               <a href="{{ url_for('main.edit_siswa', id=s.id) }}" class="btn btn-sm btn-outline" title="Edit"><i class="fas fa-pen"></i></a>
               <form method="POST" action="{{ url_for('main.hapus_siswa', id=s.id) }}" onsubmit="return confirm('Hapus {{ s.nama }}?')">
                 <button class="btn btn-sm btn-danger" type="submit" title="Hapus"><i class="fas fa-trash"></i></button>
               </form>
+              {% endif %}
             </div>
           </td>
         </tr>
@@ -97,7 +101,9 @@
   <div class="empty-state">
     <div class="empty-icon"><i class="fas fa-search"></i></div>
     <p>Tidak ada data ditemukan</p>
+    {% if current_user.role == 'admin' %}
     <a href="{{ url_for('main.tambah_siswa') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Siswa</a>
+    {% endif %}
   </div>
   {% endif %}
 </div>

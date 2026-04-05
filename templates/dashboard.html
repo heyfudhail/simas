@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Dashboard - SIMAS{% endblock %}
-{% block page_title %}Dashboard{% endblock %}
+{% block page_title %}<h1><i class="fas fa-th-large"></i> Dashboard</h1>{% endblock %}
 
 {% block content %}
 <div class="stat-grid">
@@ -28,41 +28,51 @@
 
 <div class="grid-2">
   <div class="card">
-    <div class="card-header"><i class="fas fa-chart-bar"></i> Sebaran per Kelas</div>
-    <table class="table">
-      <thead><tr><th>Kelas</th><th>Jumlah</th><th>Rata-rata Nilai</th></tr></thead>
-      <tbody>
-        {% for k in kelas_data %}
-        <tr>
-          <td><span class="badge badge-blue">{{ k.kelas }}</span></td>
-          <td>{{ k.jml }} siswa</td>
-          <td>
-            {% for a in avg_nilai if a.kelas == k.kelas %}
-              <span class="badge {% if a.rata >= 80 %}badge-green{% elif a.rata >= 70 %}badge-yellow{% else %}badge-red{% endif %}">
-                {{ a.rata }}
-              </span>
-            {% endfor %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card-header">
+      <span><i class="fas fa-chart-bar"></i> Sebaran per Kelas</span>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Kelas</th><th>Jumlah</th><th>Rata-rata</th></tr></thead>
+        <tbody>
+          {% for k in kelas_data %}
+          <tr>
+            <td><span class="badge badge-blue">{{ k.kelas }}</span></td>
+            <td><strong>{{ k.jml }}</strong> siswa</td>
+            <td>
+              {% for a in avg_nilai if a.kelas == k.kelas %}
+                <span class="badge {% if a.rata >= 80 %}badge-green{% elif a.rata >= 70 %}badge-yellow{% else %}badge-red{% endif %}">
+                  {{ a.rata }}
+                </span>
+              {% else %}
+                <span class="text-muted">-</span>
+              {% endfor %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
     <div class="chart-container">
       <canvas id="kelasChart"></canvas>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-header"><i class="fas fa-trophy"></i> Ranking Siswa</div>
+    <div class="card-header">
+      <span><i class="fas fa-trophy"></i> Ranking Siswa</span>
+      <span class="badge badge-green">Ganjil 2025/2026</span>
+    </div>
+    {% if siswa_ranking %}
     <div class="siswa-list">
       {% for s in siswa_ranking %}
       <a href="{{ url_for('main.detail_siswa', id=s.id) }}" class="siswa-item">
-        <div class="avatar" style="font-size:0.85rem;font-weight:700;background:{% if loop.index == 1 %}#f59e0b{% elif loop.index == 2 %}#94a3b8{% elif loop.index == 3 %}#b45309{% else %}#e5e7eb{% endif %};color:{% if loop.index <= 3 %}#fff{% else %}#374151{% endif %};">
+        <div class="avatar" style="font-size:0.85rem;font-weight:700;background:{% if loop.index == 1 %}linear-gradient(135deg,#f59e0b,#d97706){% elif loop.index == 2 %}linear-gradient(135deg,#94a3b8,#64748b){% elif loop.index == 3 %}linear-gradient(135deg,#b45309,#92400e){% else %}var(--gray-200){% endif %};color:{% if loop.index <= 3 %}#fff{% else %}var(--gray-600){% endif %};box-shadow:{% if loop.index <= 3 %}0 2px 8px rgba(0,0,0,0.15){% else %}none{% endif %};">
           {{ loop.index }}
         </div>
         <div class="siswa-info">
           <div class="siswa-nama">{{ s.nama }}</div>
-          <div class="siswa-meta">{{ s.kelas }} &middot; Rata-rata: <strong>{{ s.rata_rata }}</strong></div>
+          <div class="siswa-meta">{{ s.kelas }}</div>
         </div>
         <span class="badge {% if s.rata_rata >= 85 %}badge-green{% elif s.rata_rata >= 75 %}badge-yellow{% else %}badge-red{% endif %}">
           {{ s.rata_rata }}
@@ -70,7 +80,15 @@
       </a>
       {% endfor %}
     </div>
-    <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline" style="margin-top:16px;width:100%;justify-content:center">Lihat Semua Siswa <i class="fas fa-arrow-right"></i></a>
+    {% else %}
+    <div class="empty-state" style="padding:40px 20px">
+      <div class="empty-icon"><i class="fas fa-trophy"></i></div>
+      <p>Belum ada data nilai</p>
+    </div>
+    {% endif %}
+    <a href="{{ url_for('main.daftar_siswa') }}" class="btn btn-outline btn-block" style="margin-top:16px">
+      Lihat Semua Siswa <i class="fas fa-arrow-right"></i>
+    </a>
   </div>
 </div>
 {% endblock %}
@@ -92,25 +110,34 @@ document.addEventListener('DOMContentLoaded', function() {
       datasets: [{
         label: 'Jumlah Siswa',
         data: data,
-        backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444'],
+        backgroundColor: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#1d4ed8'],
         borderRadius: 8,
         borderSkipped: false,
+        barPercentage: 0.6,
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false }
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e293b',
+          titleFont: { family: 'Inter', weight: '600' },
+          bodyFont: { family: 'Inter' },
+          cornerRadius: 8,
+          padding: 10,
+        }
       },
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { stepSize: 1 },
-          grid: { color: '#f3f4f6' }
+          ticks: { stepSize: 1, font: { family: 'Inter', size: 11 } },
+          grid: { color: '#f1f5f9' }
         },
         x: {
-          grid: { display: false }
+          grid: { display: false },
+          ticks: { font: { family: 'Inter', size: 11, weight: '600' } }
         }
       }
     }

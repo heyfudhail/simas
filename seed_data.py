@@ -24,7 +24,7 @@ MAPEL = [
 
 KELAS_OPTIONS = ["X", "XI-IPA", "XI-IPS", "XII-IPA", "XII-IPS"]
 
-# ─── Data nama realistis Indonesia ───
+# Data Nama
 NAMA_DEPAN_L = [
     "Ahmad", "Budi", "Dani", "Eko", "Fajar", "Gilang", "Hendra", "Irfan",
     "Joko", "Kevin", "Lukman", "Muhammad", "Nanda", "Oscar", "Putra",

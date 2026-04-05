@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — SIMAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ─── Animated background ─── */
+    .bg-gradient {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 40%, #3b82f6 70%, #1d4ed8 100%);
+      z-index: 0;
+    }
+
+    .bg-shapes {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .bg-shapes::before,
+    .bg-shapes::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.08;
+      background: #fff;
+    }
+
+    .bg-shapes::before {
+      width: 600px;
+      height: 600px;
+      top: -200px;
+      right: -100px;
+      animation: float1 20s ease-in-out infinite;
+    }
+
+    .bg-shapes::after {
+      width: 400px;
+      height: 400px;
+      bottom: -100px;
+      left: -50px;
+      animation: float2 15s ease-in-out infinite;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.05;
+      background: #fff;
+    }
+
+    .shape-1 {
+      width: 200px;
+      height: 200px;
+      top: 60%;
+      right: 20%;
+      animation: float3 18s ease-in-out infinite;
+    }
+
+    .shape-2 {
+      width: 150px;
+      height: 150px;
+      top: 20%;
+      left: 15%;
+      animation: float1 22s ease-in-out infinite reverse;
+    }
+
+    .shape-3 {
+      width: 100px;
+      height: 100px;
+      bottom: 30%;
+      left: 40%;
+      animation: float2 12s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+
+    @keyframes float2 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(40px, -40px) rotate(180deg); }
+    }
+
+    @keyframes float3 {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-30px, 30px); }
+      50% { transform: translate(20px, -20px); }
+      75% { transform: translate(-10px, -30px); }
+    }
+
+    /* ─── Login container ─── */
+    .login-wrapper {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      width: 100%;
+      max-width: 900px;
+      min-height: 520px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255,255,255,0.08);
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ─── Left panel (branding) ─── */
+    .login-brand {
+      flex: 1;
+      background: linear-gradient(160deg, #1e40af 0%, #1e3a8a 50%, #0f172a 100%);
+      padding: 50px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-brand::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.15);
+      top: -80px;
+      left: -80px;
+    }
+
+    .login-brand::after {
+      content: '';
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(96, 165, 250, 0.1);
+      bottom: -50px;
+      right: -50px;
+    }
+
+    .brand-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+
+    .brand-logo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    }
+
+    .brand-logo-text {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title span {
+      background: linear-gradient(135deg, #60a5fa, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand-desc {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+
+    .brand-features {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .brand-feature {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .brand-feature i {
+      width: 32px;
+      height: 32px;
+      background: rgba(59, 130, 246, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #60a5fa;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Right panel (form) ─── */
+    .login-form-panel {
+      flex: 1;
+      background: #fff;
+      padding: 50px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-header {
+      margin-bottom: 32px;
+    }
+
+    .form-header h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+
+    .form-header p {
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    /* ─── Alerts ─── */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-error {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+
+    .alert-warning {
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fde68a;
+    }
+
+    .alert-success {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+    }
+
+    /* ─── Form ─── */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i.input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 14px;
+      transition: color 0.2s;
+      pointer-events: none;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 13px 14px 13px 44px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+      outline: none;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    .input-wrapper input::placeholder {
+      color: #94a3b8;
+    }
+
+    .input-wrapper input:focus {
+      border-color: #3b82f6;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .input-wrapper input:focus + i.input-icon,
+    .input-wrapper input:focus ~ i.input-icon {
+      color: #3b82f6;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .toggle-password:hover {
+      color: #3b82f6;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      margin-top: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-login::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-login:hover::before {
+      opacity: 1;
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .btn-login span {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* ─── Credentials info ─── */
+    .credentials-info {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .credentials-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e40af;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .credential-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+      color: #1e40af;
+    }
+
+    .credential-row .role-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      min-width: 48px;
+      text-align: center;
+    }
+
+    .role-badge.admin {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+    }
+
+    .role-badge.user {
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .credential-row code {
+      background: rgba(30, 64, 175, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      color: #1e40af;
+    }
+
+    .credential-row .sep {
+      color: #94a3b8;
+    }
+
+    /* ─── Footer ─── */
+    .login-footer {
+      text-align: center;
+      padding-top: 24px;
+      margin-top: auto;
+    }
+
+    .login-footer p {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .login-footer a {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+        align-items: flex-start;
+        padding-top: 40px;
+      }
+
+      .login-wrapper {
+        flex-direction: column;
+        max-width: 440px;
+        min-height: auto;
+      }
+
+      .login-brand {
+        padding: 32px 28px;
+      }
+
+      .brand-features {
+        display: none;
+      }
+
+      .brand-title {
+        font-size: 24px;
+      }
+
+      .brand-desc {
+        margin-bottom: 0;
+        font-size: 14px;
+      }
+
+      .login-form-panel {
+        padding: 32px 28px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .login-brand {
+        padding: 24px 20px;
+      }
+
+      .login-form-panel {
+        padding: 24px 20px;
+      }
+
+      .brand-logo {
+        margin-bottom: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="login-wrapper">
+    <!-- Left: Branding -->
+    <div class="login-brand">
+      <div class="brand-content">
+        <div class="brand-logo">
+          <div class="brand-logo-icon">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <span class="brand-logo-text">SIMAS</span>
+        </div>
+        <h1 class="brand-title">Kelola Data Siswa<br><span>Lebih Mudah</span></h1>
+        <p class="brand-desc">Sistem Informasi Manajemen Siswa untuk mencatat, mengelola, dan memantau data siswa serta nilai rapor secara digital.</p>
+        <div class="brand-features">
+          <div class="brand-feature">
+            <i class="fas fa-users"></i>
+            <span>Manajemen data siswa lengkap</span>
+          </div>
+          <div class="brand-feature">
+            <i class="fas fa-chart-bar"></i>
+            <span>Dashboard statistik & grafik</span>
+          </div>
+          <div class="brand-feature">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Input & monitoring nilai rapor</span>
+          </div>
+          <div class="brand-feature">
+            <i class="fas fa-file-csv"></i>
+            <span>Export & import data CSV</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Form -->
+    <div class="login-form-panel">
+      <div class="form-header">
+        <h2>Selamat Datang!</h2>
+        <p>Silakan masuk ke akun Anda</p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <i class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="credentials-info">
+        <div class="credentials-title"><i class="fas fa-key"></i> Akun Demo</div>
+        <div class="credential-row">
+          <span class="role-badge admin">ADMIN</span>
+          <code>admin</code>
+          <span class="sep">/</span>
+          <code>adminaccess123</code>
+        </div>
+        <div class="credential-row">
+          <span class="role-badge user">USER</span>
+          <code>user</code>
+          <span class="sep">/</span>
+          <code>useraccess123</code>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('main.login') }}">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-wrapper">
+            <input type="text" id="username" name="username" placeholder="Masukkan username" required autofocus autocomplete="username">
+            <i class="fas fa-user input-icon"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="password" name="password" placeholder="Masukkan password" required autocomplete="current-password">
+            <i class="fas fa-lock input-icon"></i>
+            <button type="button" class="toggle-password" onclick="togglePw()">
+              <i class="fas fa-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn-login">
+          <span><i class="fas fa-sign-in-alt"></i> Masuk</span>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p>&copy; 2026 SIMAS — Made by <a href="#">Fudhail</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePw() {
+      const pw = document.getElementById('password');
+      const icon = document.getElementById('eyeIcon');
+      if (pw.type === 'password') {
+        pw.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        pw.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Manajemen User — SIMAS{% endblock %}
+
+{% block page_title %}
+<h1><i class="fas fa-users-cog"></i> Manajemen User</h1>
+{% endblock %}
+
+{% block topbar_actions %}
+<button class="btn btn-primary" onclick="openModal('addUserModal')">
+  <i class="fas fa-plus"></i> Tambah User
+</button>
+{% endblock %}
+
+{% block content %}
+
+<!-- Modal Tambah User -->
+<div class="modal-overlay" id="addUserModal" onclick="closeModalOutside(event, 'addUserModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><i class="fas fa-user-plus"></i> Tambah User Baru</h2>
+      <button class="modal-close" onclick="closeModal('addUserModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <form method="POST" action="{{ url_for('main.tambah_user') }}">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" name="username" required placeholder="Username login" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" required placeholder="Password" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" name="nama_lengkap" required placeholder="Nama lengkap">
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select name="role" required>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('addUserModal')">Batal</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Edit User -->
+<div class="modal-overlay" id="editUserModal" onclick="closeModalOutside(event, 'editUserModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><i class="fas fa-user-edit"></i> Edit User</h2>
+      <button class="modal-close" onclick="closeModal('editUserModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="editUserForm" method="POST" action="">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="edit_username" disabled>
+        </div>
+        <div class="form-group">
+          <label>Password <small>(kosongkan jika tidak diubah)</small></label>
+          <input type="password" name="password" placeholder="Kosongkan jika tidak diubah" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" name="nama_lengkap" id="edit_nama" required>
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select name="role" id="edit_role" required>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('editUserModal')">Batal</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabel Users -->
+<div class="card">
+  <div class="card-header">
+    <span><i class="fas fa-list"></i> Daftar User</span>
+    <span class="badge badge-blue">{{ users|length }} user</span>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Nama Lengkap</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Dibuat</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar sm" style="background:{% if u.role == 'admin' %}linear-gradient(135deg,var(--primary),var(--primary-dark)){% else %}var(--gray-200){% endif %};color:{% if u.role == 'admin' %}#fff{% else %}var(--gray-600){% endif %};font-size:12px;">
+                {{ u.nama_lengkap[0] }}
+              </div>
+              <strong>{{ u.username }}</strong>
+            </div>
+          </td>
+          <td>{{ u.nama_lengkap }}</td>
+          <td>
+            <span class="badge {% if u.role == 'admin' %}badge-admin{% else %}badge-user{% endif %}">
+              {{ u.role|upper }}
+            </span>
+          </td>
+          <td>
+            {% if u.is_active %}
+            <span class="badge badge-success"><i class="fas fa-check-circle" style="font-size:10px"></i> Aktif</span>
+            {% else %}
+            <span class="badge badge-danger"><i class="fas fa-times-circle" style="font-size:10px"></i> Nonaktif</span>
+            {% endif %}
+          </td>
+          <td><span class="text-muted" style="font-size:12px">{{ u.created_at }}</span></td>
+          <td>
+            <div class="actions">
+              <button class="btn-icon btn-edit" onclick="openEditModal({{ u.id }}, '{{ u.username }}', '{{ u.nama_lengkap }}', '{{ u.role }}')" data-tooltip="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              {% if u.id != current_user.id %}
+              <button class="btn-icon btn-delete" onclick="confirmDelete('{{ u.username }}', '/users/hapus/{{ u.id }}')" data-tooltip="Hapus">
+                <i class="fas fa-trash"></i>
+              </button>
+              {% else %}
+              <span class="badge badge-user" style="font-size:10px;padding:4px 8px;white-space:nowrap">Anda</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openEditModal(id, username, nama, role) {
+  document.getElementById('edit_username').value = username;
+  document.getElementById('edit_nama').value = nama;
+  document.getElementById('edit_role').value = role;
+  document.getElementById('editUserForm').action = '/users/edit/' + id;
+  openModal('editUserModal');
+}
+</script>
+{% endblock %}
