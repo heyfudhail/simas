@@ -88,6 +88,11 @@ document.addEventListener('keydown', e => {
       m.classList.remove('show');
       document.body.style.overflow = '';
     });
+    // Also close sidebar on mobile
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && sidebar.classList.contains('open')) {
+      toggleSidebar();
+    }
   }
 });
 
@@ -102,3 +107,53 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => el.remove(), 4300);
   });
 });
+
+/* ─── Table Scroll Indicator ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.table-wrap').forEach(wrap => {
+    const checkScroll = () => {
+      if (wrap.scrollWidth > wrap.clientWidth) {
+        wrap.classList.add('scrollable');
+      } else {
+        wrap.classList.remove('scrollable');
+      }
+    };
+    checkScroll();
+    wrap.addEventListener('scroll', checkScroll);
+    window.addEventListener('resize', checkScroll);
+  });
+});
+
+/* ─── Close sidebar when clicking nav item on mobile ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  const navItems = document.querySelectorAll('.nav-item');
+  const sidebar = document.getElementById('sidebar');
+  
+  if (window.innerWidth <= 768) {
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        if (sidebar && sidebar.classList.contains('open')) {
+          toggleSidebar();
+        }
+      });
+    });
+  }
+  
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768 && sidebar) {
+      sidebar.classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('show');
+      document.getElementById('menuIcon').className = 'fas fa-bars';
+    }
+  });
+});
+
+/* ─── Prevent zoom on double tap for iOS ─── */
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (event) => {
+  const now = (new Date()).getTime();
+  if (now - lastTouchEnd <= 300) {
+    event.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);

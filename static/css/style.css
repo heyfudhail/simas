@@ -45,6 +45,32 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ─── Responsive Images ─── */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ─── Global Resets ─── */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+
+/* ─── Text Overflow Protection ─── */
+body {
+  overflow-x: hidden;
+}
+
+code, pre {
+  word-break: break-all;
+  word-wrap: break-word;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--gray-50);
@@ -496,6 +522,8 @@ body {
 /* ─── TABLE ─── */
 .table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .table {
@@ -1467,64 +1495,173 @@ code {
 }
 
 /* ─── RESPONSIVE ─── */
-@media (max-width: 1024px) {
-  .stat-grid { grid-template-columns: repeat(2, 1fr); }
-  .grid-2 { grid-template-columns: 1fr; }
-  .grid-detail { grid-template-columns: 1fr; }
+
+/* ========================================
+   TABLET LANDSCAPE (≤1280px)
+   ======================================== */
+@media (max-width: 1280px) {
+  .stat-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 16px;
+  }
+  
+  .grid-2 { 
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+  
+  .grid-detail { 
+    grid-template-columns: 280px 1fr; 
+    gap: 16px;
+  }
+  
+  .content {
+    padding: 24px;
+  }
 }
 
+/* ========================================
+   TABLET PORTRAIT (≤1024px)
+   ======================================== */
+@media (max-width: 1024px) {
+  .grid-detail { 
+    grid-template-columns: 260px 1fr;
+  }
+  
+  .content {
+    padding: 20px;
+  }
+}
+
+/* ========================================
+   MOBILE (≤768px)
+   ======================================== */
 @media (max-width: 768px) {
+  /* ── Sidebar & Mobile Toggle ── */
   .mobile-toggle {
-    display: flex;
+    display: inline-flex !important;
   }
 
   .sidebar {
     transform: translateX(-100%);
     box-shadow: none;
+    width: 280px;
   }
 
   .sidebar.open {
     transform: translateX(0);
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   }
 
+  .sidebar-overlay {
+    display: none;
+  }
+  
   .sidebar-overlay.show {
     display: block;
   }
 
+  /* ── Main Content ── */
   .main {
-    margin-left: 0;
+    margin-left: 0 !important;
+    width: 100%;
   }
-
-  .stat-grid { grid-template-columns: 1fr 1fr; }
-
-  .content {
-    padding: 16px;
-    padding-top: 60px;
-  }
-
+  
+  /* ── Topbar ── */
   .topbar {
-    padding: 12px 16px;
-    padding-left: 56px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    padding: 12px 16px 12px 68px;
+    flex-wrap: wrap;
+  }
+  
+  .topbar-title {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  
+  .topbar-title h1 {
+    font-size: 16px;
+  }
+  
+  .topbar-title h1 i {
+    font-size: 18px;
   }
 
   .topbar-actions {
     width: 100%;
+    gap: 6px;
     flex-wrap: wrap;
   }
 
   .topbar-actions .btn {
-    flex: 1;
-    justify-content: center;
+    flex: 1 1 auto;
+    min-width: 0;
     font-size: 12px;
+    padding: 8px 10px;
+  }
+  
+  .user-info {
+    width: 100%;
+    justify-content: center;
     padding: 8px 12px;
   }
+  
+  .user-name {
+    font-size: 12px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
+  /* ── Content Area ── */
+  .content {
+    padding: 16px;
+  }
+  
+  /* ── Stats Grid ── */
+  .stat-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 12px;
+  }
+  
+  .stat-card {
+    padding: 16px;
+  }
+  
+  .stat-value {
+    font-size: 26px;
+  }
+  
+  .stat-label {
+    font-size: 11px;
+  }
+  
+  .stat-desc {
+    font-size: 11px;
+  }
+  
+  /* ── Dashboard Grid-2 ── */
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+  
+  /* ── Cards ── */
+  .card {
+    padding: 16px;
+  }
+  
+  .card-header {
+    font-size: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  /* ── Toolbar / Search ── */
   .toolbar {
     flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
   }
 
   .toolbar .input {
@@ -1536,58 +1673,552 @@ code {
     width: 100%;
     justify-content: center;
   }
-
-  .table-footer {
+  
+  .toolbar form {
+    width: 100%;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    gap: 8px;
   }
-
+  
+  /* ── Tables ── */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+  
+  /* ── Forms ── */
   .form-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+    gap: 14px;
   }
 
   .form-actions {
     flex-direction: column-reverse;
+    gap: 8px;
   }
 
   .form-actions .btn {
     width: 100%;
     justify-content: center;
   }
-
+  
+  /* ── Photo Upload ── */
   .foto-upload-area {
     flex-direction: column;
     text-align: center;
+    gap: 16px;
   }
-
+  
+  .foto-upload-area .avatar.lg {
+    width: 90px;
+    height: 90px;
+    font-size: 32px;
+  }
+  
+  /* ── Alerts ── */
   .alert {
-    margin: 16px 16px 0;
+    margin: 12px 12px 0;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 10px;
   }
-
-  .user-info {
+  
+  /* ── Detail Page ── */
+  .grid-detail {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .profil-foto img {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .profil-nama {
+    font-size: 18px;
+  }
+  
+  .rata-val {
+    font-size: 30px;
+  }
+  
+  /* ── Modals ── */
+  .modal {
+    max-width: 95%;
+    margin: 0 auto;
+  }
+  
+  .modal-header {
+    padding: 16px 20px;
+  }
+  
+  .modal-body {
+    padding: 20px;
+  }
+  
+  .modal-footer {
+    padding: 12px 20px;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  
+  .modal-footer .btn {
     width: 100%;
     justify-content: center;
   }
-
-  .user-name {
-    font-size: 12px;
+  
+  /* ── Siswa List ── */
+  .siswa-item {
+    padding: 10px 8px;
+    gap: 10px;
+  }
+  
+  .siswa-nama {
+    font-size: 13px;
+  }
+  
+  .siswa-meta {
+    font-size: 11px;
+  }
+  
+  /* ── Actions ── */
+  .actions {
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+  
+  /* ── Chart ── */
+  .chart-container {
+    height: 200px;
+    margin-top: 16px;
+  }
+  
+  /* ── Siswa List in Dashboard ── */
+  .siswa-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  /* ── Table Footer ── */
+  .table-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .pagination {
+    flex-wrap: wrap;
   }
 }
 
+/* ========================================
+   SMALL MOBILE (≤480px)
+   ======================================== */
 @media (max-width: 480px) {
-  .stat-grid { grid-template-columns: 1fr; }
+  /* ── Stats: Single Column ── */
+  .stat-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 10px;
+  }
+  
+  .stat-card {
+    padding: 14px;
+  }
 
   .stat-value {
+    font-size: 24px;
+  }
+  
+  .stat-label {
+    font-size: 11px;
+  }
+  
+  .stat-desc {
+    font-size: 10px;
+  }
+
+  /* ── Topbar ── */
+  .topbar {
+    padding: 10px 12px 10px 60px;
+  }
+  
+  .topbar-title h1 {
+    font-size: 14px;
+  }
+  
+  .mobile-toggle {
+    top: 10px;
+    left: 10px;
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+  
+  .sidebar {
+    width: 260px;
+  }
+
+  /* ── Content ── */
+  .content {
+    padding: 12px;
+  }
+  
+  /* ── Cards ── */
+  .card {
+    padding: 14px;
+    border-radius: 12px;
+  }
+  
+  .card-header {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  /* ── Tables ── */
+  .table {
+    font-size: 12px;
+  }
+  
+  .table th {
+    padding: 10px 12px;
+    font-size: 10px;
+  }
+  
+  .table td {
+    padding: 10px 12px;
+  }
+  
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .btn-sm {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  
+  /* ── Inputs ── */
+  .input {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+  
+  .input-sm {
+    width: 65px;
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  
+  /* ── Badges ── */
+  .badge {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+  
+  /* ── Avatars ── */
+  .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+  
+  .avatar.sm {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  
+  .avatar.lg {
+    width: 80px;
+    height: 80px;
     font-size: 28px;
   }
-
-  .actions {
-    flex-direction: column;
+  
+  .avatar.xl {
+    width: 85px;
+    height: 85px;
+    font-size: 34px;
+  }
+  
+  /* ── Profile ── */
+  .profil-nama {
+    font-size: 16px;
+  }
+  
+  .profil-sub {
+    font-size: 12px;
+  }
+  
+  .info-row {
+    font-size: 12px;
+    padding: 8px 0;
+    gap: 8px;
+  }
+  
+  .rata-val {
+    font-size: 26px;
+  }
+  
+  .rata-label {
+    font-size: 11px;
+  }
+  
+  /* ── Siswa List ── */
+  .siswa-list {
     gap: 4px;
   }
+  
+  .siswa-item {
+    padding: 10px 8px;
+    gap: 10px;
+  }
+  
+  .siswa-nama {
+    font-size: 13px;
+  }
+  
+  .siswa-meta {
+    font-size: 11px;
+  }
+  
+  /* ── Dashboard Grid-2 ── */
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+  
+  .grid-2 .card {
+    margin-bottom: 0;
+  }
+  
+  /* ── Actions ── */
+  .chart-container {
+    height: 180px;
+  }
+  
+  /* ── Empty State ── */
+  .empty-state {
+    padding: 30px 16px;
+  }
+  
+  .empty-icon {
+    font-size: 36px;
+  }
+  
+  /* ── Upload Zone ── */
+  .upload-zone {
+    padding: 20px 16px;
+  }
+  
+  .upload-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  
+  .upload-zone h3 {
+    font-size: 13px;
+  }
+  
+  .upload-zone p {
+    font-size: 12px;
+  }
+  
+  /* ── Pagination ── */
+  .pagination a, 
+  .pagination span {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+  
+  /* ── User Info ── */
+  .user-info {
+    padding: 6px 10px;
+  }
+  
+  .user-role-badge {
+    font-size: 8px;
+  }
+  
+  .user-name {
+    font-size: 11px;
+    max-width: 120px;
+  }
+  
+  .btn-logout {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  
+  /* ── Sidebar ── */
+  .sidebar-brand {
+    padding: 16px;
+    gap: 10px;
+  }
+  
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+  
+  .brand-name {
+    font-size: 15px;
+  }
+  
+  .brand-sub {
+    font-size: 10px;
+  }
+  
+  .nav-item {
+    padding: 9px 10px;
+    font-size: 13px;
+    gap: 10px;
+  }
+  
+  .nav-icon {
+    font-size: 14px;
+  }
+  
+  .sidebar-footer {
+    padding: 12px 16px;
+    font-size: 10px;
+  }
+}
 
-  .actions .btn-sm {
-    width: 100%;
-    justify-content: center;
+/* ========================================
+   EXTRA SMALL MOBILE (≤360px)
+   ======================================== */
+@media (max-width: 360px) {
+  .content {
+    padding: 10px;
+  }
+  
+  .topbar {
+    padding: 8px 10px 8px 56px;
+  }
+  
+  .topbar-title h1 {
+    font-size: 13px;
+  }
+  
+  .stat-grid {
+    gap: 8px;
+  }
+  
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+  
+  .stat-label {
+    font-size: 10px;
+  }
+  
+  .stat-desc {
+    font-size: 9px;
+  }
+  
+  .card {
+    padding: 12px;
+  }
+  
+  .card-header {
+    font-size: 12px;
+  }
+  
+  .btn {
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+  
+  .avatar.sm {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+  
+  .badge {
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+  
+  .topbar-actions .btn {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+  
+  .siswa-item {
+    padding: 8px 6px;
+    gap: 8px;
+  }
+  
+  .siswa-nama {
+    font-size: 12px;
+  }
+  
+  .siswa-meta {
+    font-size: 10px;
+  }
+  
+  .chart-container {
+    height: 160px;
+  }
+  
+  .siswa-list {
+    max-height: 300px;
+  }
+}
+
+/* ========================================
+   MOBILE LANDSCAPE MODE
+   ======================================== */
+@media (max-width: 896px) and (orientation: landscape) {
+  .content {
+    padding: 16px;
+    padding-top: 16px;
+  }
+  
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 12px;
+  }
+  
+  .stat-card {
+    padding: 12px;
+  }
+  
+  .stat-value {
+    font-size: 22px;
+  }
+  
+  .stat-label {
+    font-size: 10px;
+  }
+  
+  .stat-desc {
+    display: none;
+  }
+  
+  .grid-2 {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px;
+  }
+  
+  .chart-container {
+    height: 180px;
+  }
+  
+  .siswa-list {
+    max-height: 250px;
   }
 }
